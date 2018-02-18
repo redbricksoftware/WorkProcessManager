@@ -1,22 +1,22 @@
-##Synopsis
+## Synopsis
 Work Process Manager is a tool to manage multiple processes
 
-##Code Example
+## Code Example
 
-##Motivation
-
-
-##Installation
+## Motivation
 
 
-##API Reference
+## Installation
 
 
-##Tests
+## API Reference
 
 
-##Contributors
+## Tests
 
 
-##License
+## Contributors
+
+
+## License
 MIT
