@@ -1,9 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
+using RedBrickSoftware.ClassLibrary;
 
 namespace RedBrickSoftware.WebHookDispatcher
 {
@@ -15,8 +19,30 @@ namespace RedBrickSoftware.WebHookDispatcher
         {
             Console.WriteLine("Hello World!");
 
-            rabbitstuff();
+
+
+
+            getDataFromQueue();
+
+        
         }
+
+
+
+        static async Task<Uri> GetWork(WorkTypeEnumeration workType)
+        {
+            //TODO this
+
+            object product = new object();
+            HttpResponseMessage response = await client.PostAsJsonAsync("api/products", product);
+            response.EnsureSuccessStatusCode();
+
+            // return URI of the created resource.
+            return response.Headers.Location;
+        }
+
+
+
 
         static async Task<Uri> PostAsync()
         {
@@ -41,7 +67,7 @@ namespace RedBrickSoftware.WebHookDispatcher
         }
 
 
-        static void rabbitstuff()
+        static void getDataFromQueue()
         {
             var factory = new ConnectionFactory() { HostName = "localhost" };
 
@@ -73,13 +99,22 @@ namespace RedBrickSoftware.WebHookDispatcher
                         IBasicProperties props = result.BasicProperties;
                         byte[] body = result.Body;
 
-                        Console.WriteLine("message: " + body);
+                        object data = Deserialize<object>(body);
+
+                        Console.WriteLine("message: " + data);
 
                         channel.BasicAck(result.DeliveryTag, false);
                     }
                 }
 
             }
+        }
+
+        static T Deserialize<T>(byte[] data) where T : class
+        {
+            using (var stream = new MemoryStream(data))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+                return JsonSerializer.Create().Deserialize(reader, typeof(T)) as T;
         }
     }
 }
